@@ -2,6 +2,7 @@ import pafy
 import os
 import re
 import sys
+from pytube import Playlist
 
 
 def readUrl(fname):
@@ -46,26 +47,36 @@ def download(names, path):
 
 arg_count = len(sys.argv)
 
-if arg_count > 3:
+if arg_count > 4:
     print("""
           #usage
           for individual video 
-          y2d.py TxtFileName folderToSave]
+          y2d.py TxtFileName(without .txt) folderToSave
           for full playlist
-          y2d.py -p playlistURL
+          y2d.py -p playlistURL folderToSave
           """)
     exit
 
 if sys.argv[1] == "-p":
     playlist_url = sys.argv[2]
-    playlist = pafy.get_playlist(playlist_url)
-    title = re.sub('[^A-Za-z0-9]+', ' ', playlist['title'])
-    path = createPath(title)
-    for item in playlist['items']:
-        video = item['pafy']
-        names = []
-        names.append(video.videoid)
-        download(names, path)
+    path = createPath(sys.argv[3])
+
+    playlist = Playlist(playlist_url)
+    names = []
+    for item in playlist:
+        names.append(item)    
+    download(names, path)
+    
+    # print(playlist)
+    # playlist = pafy.get_playlist(playlist_url)
+    # title = re.sub('[^A-Za-z0-9]+', ' ', playlist['title'])
+    # path = createPath(title)
+    # for item in playlist['items']:
+    #     video = item['pafy']
+    #     names = []
+    #     names.append(video.videoid)
+    #     download(names, path)
+    
 else:
     names = readUrl(sys.argv[1])
     path = createPath(sys.argv[2])
